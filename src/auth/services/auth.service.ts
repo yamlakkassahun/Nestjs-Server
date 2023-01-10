@@ -1,10 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Auth, AuthDocument } from '../entities/auth.entity';
+import { Auth } from '../entities/auth.entity';
 import * as bcrypt from 'bcrypt';
-import { UpdateAuthDto } from '../dto/update-auth.dto';
 import { Role } from '../entities/role.enum';
 import {
   ConfirmCustomerAccount,
@@ -14,11 +11,12 @@ import {
   ResetPasswordDto,
 } from '../dto/create-auth.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
+import { AuthRepository } from '../repositories/auth.Repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(Auth.name) private userModel: Model<AuthDocument>,
+    private readonly AuthModel: AuthRepository,
     private jwtService: JwtService,
   ) {}
 
@@ -27,7 +25,7 @@ export class AuthService {
   }
 
   async doesUserExist(email: string): Promise<any> {
-    const user: Auth = await this.userModel.findOne({ email });
+    const user: Auth = await this.AuthModel.findOne({ email });
     if (user) {
       return true;
     }
@@ -57,7 +55,7 @@ export class AuthService {
     const hashedPassword = await this.hashPassword(password);
 
     //registering the new user and returning it
-    return this.userModel.create({
+    return this.AuthModel.create({
       email,
       role: userRole,
       password: hashedPassword,
@@ -65,9 +63,7 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string): Promise<Auth> {
-    const existingUser: Auth = await this.userModel.findOne({ email });
-
-    console.log(existingUser);
+    const existingUser: Auth = await this.AuthModel.findOne({ email });
     //check if the user exist
     if (!existingUser) {
       throw new HttpException(
@@ -104,7 +100,7 @@ export class AuthService {
     updatePasswordDto: UpdatePasswordDto,
   ): Promise<Auth> {
     const { oldPassword, newPassword } = updatePasswordDto;
-    const existingUser = await this.userModel.findById(user._id);
+    const existingUser = await this.AuthModel.findOne({ id: user._id });
     //check if the old password is correct
     if (!existingUser && bcrypt.compare(oldPassword, existingUser.password)) {
       throw new HttpException(
@@ -122,13 +118,13 @@ export class AuthService {
   }
 
   async deleteUser(id: string): Promise<Auth> {
-    return await this.userModel.findByIdAndDelete(id);
+    return await this.AuthModel.deleteOne({ id });
   }
 
   /**************Password Reset*************/
   async checkUser(resetAuthPasswordDto: ResetAuthPasswordDto): Promise<Auth> {
     const { email } = resetAuthPasswordDto;
-    const user = await this.userModel.findOne({ email });
+    const user = await this.AuthModel.findOne({ email });
     if (!user) {
       throw new HttpException(
         {
@@ -146,7 +142,7 @@ export class AuthService {
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<Auth> {
     const { code, newPassword } = resetPasswordDto;
 
-    const user = await this.userModel.findOne({ code });
+    const user = await this.AuthModel.findOne({ code });
     if (!user) {
       throw new HttpException(
         {
@@ -182,7 +178,7 @@ export class AuthService {
       );
     }
 
-    const user = await this.userModel.findOne({ email: email });
+    const user = await this.AuthModel.findOne({ email: email });
     user.verified = true;
     await user.save();
     return user;

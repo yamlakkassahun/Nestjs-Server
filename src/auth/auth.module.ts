@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PassportModule } from '@nestjs/passport';
-
 //packages
 
 //external imports
@@ -13,6 +11,7 @@ import { JwtStrategy } from './guards/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { AuthService } from './services/auth.service';
 import { ConfigModule } from '@nestjs/config';
+import { AuthRepository } from './repositories/auth.Repository';
 
 @Module({
   imports: [
@@ -27,7 +26,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
   ],
-  providers: [AuthService, JwtGuard, JwtStrategy, RolesGuard],
+  providers: [AuthService, AuthRepository, JwtGuard, JwtStrategy, RolesGuard],
   controllers: [AuthController],
   exports: [AuthService],
 })

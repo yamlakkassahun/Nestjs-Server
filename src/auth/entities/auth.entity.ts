@@ -14,6 +14,7 @@ export type AuthDocument = Auth & Document;
       delete ret.salt;
       delete ret.createdAt;
       delete ret.updatedAt;
+      delete ret.code;
     },
   },
   timestamps: true,
@@ -44,19 +45,7 @@ export class Auth {
   verified: boolean;
 
   @Prop({ default: null })
-  paymentStatus: string;
-
-  @Prop({ default: null })
   code: string;
-
-  @Prop({ default: new Date() })
-  membershipStartDate: Date;
-
-  @Prop({ min: 0, max: 5 })
-  active: number;
-
-  @Prop({ default: new Date() })
-  membershipEndDate: Date;
 
   // @Prop({
   //   default: [],

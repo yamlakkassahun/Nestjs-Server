@@ -4,7 +4,6 @@ import { AppModule } from './app.module';
 
 import * as fs from 'fs';
 import * as morgan from 'morgan';
-import { ValidationPipe } from '@nestjs/common';
 
 const logStream = fs.createWriteStream('src/helpers/logs/api.log', {
   flags: 'a', // append
@@ -12,7 +11,7 @@ const logStream = fs.createWriteStream('src/helpers/logs/api.log', {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // enabling cors
   app.enableCors({
     origin: '*',
@@ -21,11 +20,8 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
-  // setting api prefix on every request 
+  // setting api prefix on every request
   app.setGlobalPrefix('api');
-  
-  // setting to use validation pipe
-  app.useGlobalPipes(new ValidationPipe());
 
   //setting morgan for logs
   app.use(morgan('tiny', { stream: logStream }));
@@ -42,6 +38,8 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   // start the server and listen on port
-  await app.listen(3000, async () => console.log(`Server is listening on ${await app.getUrl()}`));
+  await app.listen(3000, async () =>
+    console.log(`Server is listening on ${await app.getUrl()}`),
+  );
 }
 bootstrap();

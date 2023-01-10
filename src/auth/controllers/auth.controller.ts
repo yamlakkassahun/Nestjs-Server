@@ -6,9 +6,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  Param,
-  Put,
-  Delete,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { GetUser } from '../decorators/get.user.decorator';
@@ -16,7 +13,6 @@ import { Roles } from '../decorators/roles.decorator';
 import {
   CreateAuthDto, CreateAuthSignInDto, ResetAuthPasswordDto, ResetPasswordDto,
 } from '../dto/create-auth.dto';
-import { UpdateAuthDto } from '../dto/update-auth.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
 import { Auth } from '../entities/auth.entity';
 import { Role } from '../entities/role.enum';
@@ -43,52 +39,7 @@ export class AuthController {
     return await this.authService.login(user);
   }
 
-  // @UseGuards(JwtGuard)
-  // // @Roles(Role.USER, Role.ADMIN)
-  // @Get('user')
-  // async getAdmin(@GetUser() user) {
-  //   return await this.authService.findUserById(user._id);
-  // }
-
-  // @Get()
-  // @UseGuards(JwtGuard, RolesGuard)
-  // @Roles(Role.ADMIN)
-  // async getAllUsers(): Promise<Auth[]> {
-  //   return await this.authService.findAllUsers();
-  // }
-
-  // @Get(':id')
-  // @UseGuards(JwtGuard, RolesGuard)
-  // @Roles(Role.ADMIN)
-  // async getUserById(@Param('id') id: string): Promise<Auth> {
-  //   return await this.authService.findUserById(id);
-  // }
-
-  // @Post('register')
-  // @UseGuards(JwtGuard, RolesGuard)
-  // @Roles(Role.ADMIN)
-  // async register(@Body() user: CreateAuthDto): Promise<Auth> {
-  //   return await this.authService.registerUser(user);
-  // }
-
-  // @Put(':id/update')
-  // @UseGuards(JwtGuard, RolesGuard)
-  // @Roles(Role.ADMIN)
-  // async update(
-  //   @Param('id') id: string,
-  //   @Body() user: UpdateAuthDto,
-  // ): Promise<Auth> {
-  //   return await this.authService.updateUser(id, user);
-  // }
-
-  // @Delete(':id')
-  // @UseGuards(JwtGuard, RolesGuard)
-  // @Roles(Role.ADMIN)
-  // async delete(@Param('id') id: string): Promise<Auth> {
-  //   return await this.authService.deleteUser(id);
-  // }
-
-  //update/change password
+  /************ change password **************/
   @Post('change-password')
   @UseGuards(JwtGuard)
   async ChangePassword(
@@ -99,7 +50,6 @@ export class AuthController {
   }
 
   /*********** password reset *****************/
-
   @Post('reset')
   async ResetPassword(
     @Body() resetAuthPasswordDto: ResetAuthPasswordDto,
@@ -109,23 +59,11 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.USER, Role.SUPER)
   async UpdatePassword(
     @Body() resetPasswordDto: ResetPasswordDto,
   ): Promise<any> {
     return await this.authService.resetPassword(resetPasswordDto);
   }
-
-  /********* Email Verification ************
-  @Post('/confirm')
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles(Role.USER)
-  async confirm(
-    @GetUser() customer: Auth,
-    @Body() confirmCustomerAccount: ConfirmCustomerAccount,
-  ): Promise<Auth> {
-    return await this.authService.CustomerConfirm(
-      confirmCustomerAccount,
-      customer,
-    );
-  }***/
 }
