@@ -1,6 +1,5 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
   UseGuards,
@@ -11,7 +10,10 @@ import { ApiTags } from '@nestjs/swagger';
 import { GetUser } from '../decorators/get.user.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import {
-  CreateAuthDto, CreateAuthSignInDto, ResetAuthPasswordDto, ResetPasswordDto,
+  CreateAuthDto,
+  CreateAuthSignInDto,
+  ResetAuthPasswordDto,
+  ResetPasswordDto,
 } from '../dto/create-auth.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';
 import { Auth } from '../entities/auth.entity';
@@ -22,25 +24,27 @@ import { AuthService } from '../services/auth.service';
 
 @Controller('auth')
 @ApiTags('Authentication')
+@Controller({
+  version: '1',
+})
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Post('signup')
+  @Post(' v1/signup')
   async registerAccount(@Body() user: CreateAuthDto): Promise<Auth> {
     const result = await this.authService.registerAccount(user);
     return result;
   }
 
-  @Post('signin')
+  @Post('v1/signin')
   @HttpCode(HttpStatus.OK)
   async login(@Body() user: CreateAuthSignInDto): Promise<any> {
     return await this.authService.login(user);
   }
 
   /************ change password **************/
-  @Post('change-password')
+
+  @Post('v1/change-password')
   @UseGuards(JwtGuard)
   async ChangePassword(
     @GetUser() user: any,
@@ -50,7 +54,8 @@ export class AuthController {
   }
 
   /*********** password reset *****************/
-  @Post('reset')
+
+  @Post('v1/reset')
   async ResetPassword(
     @Body() resetAuthPasswordDto: ResetAuthPasswordDto,
   ): Promise<any> {
@@ -58,7 +63,7 @@ export class AuthController {
     return user;
   }
 
-  @Post('reset-password')
+  @Post('v1/reset-password')
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.USER, Role.SUPER)
   async UpdatePassword(

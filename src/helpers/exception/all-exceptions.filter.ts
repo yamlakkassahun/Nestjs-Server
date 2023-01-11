@@ -28,10 +28,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = exception.getStatus();
       const errorResponse = exception.getResponse();
       errorMessage =
-        (errorResponse as HttpExceptionResponse).error || exception.message;
+        (errorResponse as HttpExceptionResponse).error ||
+        exception['response']['message'] ||
+        exception['message'];
     } else if (exception) {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
-      errorMessage = `Critical internal server error occurred! ${exception}`;
+      errorMessage = `Error occurred! ${exception['message']}`;
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       errorMessage = 'Critical internal server error occurred!';

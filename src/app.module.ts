@@ -7,10 +7,14 @@ import { AppService } from './app.service';
 import { BlogModule } from './blog/blog.module';
 import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './helpers/exception/all-exceptions.filter';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/server-with-test'),
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+    }),
+    MongooseModule.forRoot(process.env.MONGO_URL_LOCAL),
     AuthModule,
     BlogModule,
   ],
