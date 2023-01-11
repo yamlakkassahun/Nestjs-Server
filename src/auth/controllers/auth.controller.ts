@@ -24,19 +24,16 @@ import { AuthService } from '../services/auth.service';
 
 @Controller('auth')
 @ApiTags('Authentication')
-@Controller({
-  version: '1',
-})
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post(' v1/signup')
+  @Post('sign-up')
   async registerAccount(@Body() user: CreateAuthDto): Promise<Auth> {
     const result = await this.authService.registerAccount(user);
     return result;
   }
 
-  @Post('v1/signin')
+  @Post('sign-in')
   @HttpCode(HttpStatus.OK)
   async login(@Body() user: CreateAuthSignInDto): Promise<any> {
     return await this.authService.login(user);
@@ -44,7 +41,7 @@ export class AuthController {
 
   /************ change password **************/
 
-  @Post('v1/change-password')
+  @Post('change-password')
   @UseGuards(JwtGuard)
   async ChangePassword(
     @GetUser() user: any,
@@ -55,7 +52,7 @@ export class AuthController {
 
   /*********** password reset *****************/
 
-  @Post('v1/reset')
+  @Post('reset')
   async ResetPassword(
     @Body() resetAuthPasswordDto: ResetAuthPasswordDto,
   ): Promise<any> {
@@ -63,7 +60,7 @@ export class AuthController {
     return user;
   }
 
-  @Post('v1/reset-password')
+  @Post('reset-password')
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.USER, Role.SUPER)
   async UpdatePassword(

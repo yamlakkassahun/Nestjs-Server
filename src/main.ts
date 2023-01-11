@@ -30,11 +30,6 @@ async function bootstrap() {
   //setting morgan for logs
   app.use(morgan('tiny', { stream: logStream }));
 
-  //api versioning
-  app.enableVersioning({
-    type: VersioningType.URI,
-  });
-
   //swagger api documentation
   const config = new DocumentBuilder()
     .setTitle('Server with all Test example')
